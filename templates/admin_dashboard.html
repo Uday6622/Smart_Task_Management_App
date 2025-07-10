@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    /* Main container styling */
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    /* Section animation */
+    .section-container {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.6s ease-out forwards;
+        animation-delay: calc(0.2s * var(--section-index));
+    }
+
+    /* Table row animations */
+    .table-row {
+        opacity: 0;
+        transform: translateX(-20px);
+        animation: slideIn 0.5s ease-out forwards;
+        animation-delay: calc(0.1s * var(--row-index));
+    }
+
+    /* Hover effect for table rows */
+    .table-row:hover {
+        background-color: #e9ecef;
+        transform: scale(1.01);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Nested task table styling */
+    .task-table {
+        margin-top: 0.5rem;
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .task-table thead th {
+        background-color: #6c757d;
+        color: white;
+        font-size: 0.9rem;
+    }
+
+    .task-table tbody td {
+        font-size: 0.85rem;
+        padding: 0.5rem;
+    }
+
+    /* Button animations */
+    .btn-action {
+        opacity: 0;
+        transform: translateY(10px);
+        animation: fadeInUp 0.6s ease-out forwards;
+        animation-delay: calc(0.2s * var(--button-index));
+        transition: all 0.3s ease;
+        margin: 0.2rem;
+    }
+
+    .btn-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Chart container */
+    .chart-container {
+        max-width: 400px;
+        margin: 0 auto 2rem;
+        padding: 1rem;
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Keyframes for animations */
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideIn {
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Table styling */
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .table {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .table thead th {
+        background-color: #343a40;
+        color: white;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .table tbody td {
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    /* Typography */
+    h2, h3 {
+        font-weight: 600;
+        color: #343a40;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    /* No tasks/users message */
+    .no-tasks, .no-data {
+        font-style: italic;
+        color: #6c757d;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .dashboard-container {
+            margin: 1rem;
+            padding: 1.5rem;
+        }
+        h2, h3 {
+            font-size: 1.5rem;
+        }
+        .btn-action {
+            font-size: 0.85rem;
+            padding: 0.4rem 0.8rem;
+        }
+        .task-table thead th,
+        .task-table tbody td {
+            font-size: 0.8rem;
+        }
+        .chart-container {
+            max-width: 100%;
+        }
+    }
+</style>
+
+<div class="dashboard-container">
+    <!-- User Task Status Pie Chart -->
+    <div class="section-container" style="--section-index: 1">
+        <h3>Users by Task Status</h3>
+        <div class="chart-container">
+            <canvas id="userTaskStatusChart"></canvas>
+        </div>
+    </div>
+
+    <!-- All Users Table -->
+    <div class="section-container" style="--section-index: 2">
+        <h2>All Users</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Active</th>
+                        <th>Admin</th>
+                        <th>Actions</th>
+                        <th>Assigned Tasks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr class="table-row" style="--row-index: {{ loop.index }}">
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ "Yes" if user.is_active else "No" }}</td>
+                        <td>{{ "Yes" if user.is_admin else "No" }}</td>
+                        <td>
+                            {% if not user.is_admin %}
+                            <form action="{{ url_for('toggle_user_status', user_id=user.id) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-sm {{ 'btn-danger' if user.is_active else 'btn-success' }} btn-action" style="--button-index: 1">
+                                    {{ 'Deactivate' if user.is_active else 'Activate' }}
+                                </button>
+                            </form>
+                            <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger btn-action" style="--button-index: 2">Delete</button>
+                            </form>
+                            {% else %}
+                            <em>(Admin)</em>
+                            {% endif %}
+                            <br>
+                            <a href="{{ url_for('admin_create_task', user_id=user.id) }}" class="btn btn-sm btn-primary btn-action mt-1" style="--button-index: 3">Assign Task</a>
+                        </td>
+                        <td>
+                            {% if tasks_by_user[user.id] %}
+                            <div class="table-responsive task-table">
+                                <table class="table table-sm table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Due Date</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for task in tasks_by_user[user.id] %}
+                                        <tr>
+                                            <td>{{ task.name }}</td>
+                                            <td>{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else 'N/A' }}</td>
+                                            <td>{{ task.status }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <em class="no-tasks">No tasks assigned</em>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center no-data">No users available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const rows = document.querySelectorAll('.table-row');
+        const buttons = document.querySelectorAll('.btn-action');
+        const sections = document.querySelectorAll('.section-container');
+        rows.forEach(row => {
+            row.style.animationPlayState = 'running';
+        });
+        buttons.forEach(button => {
+            button.style.animationPlayState = 'running';
+        });
+        sections.forEach(section => {
+            section.style.animationPlayState = 'running';
+        });
+
+        // Pie chart for users by task status
+        const ctx = document.getElementById('userTaskStatusChart').getContext('2d');
+        const userTaskStatusData = {{ user_task_status_data | tojson | safe }};
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: userTaskStatusData.labels,
+                datasets: [{
+                    data: userTaskStatusData.counts,
+                    backgroundColor: [
+                        'rgba(0, 123, 255, 0.5)', // Pending
+                        'rgba(255, 193, 7, 0.5)', // In Progress
+                        'rgba(40, 167, 69, 0.5)' // Completed
+                    ],
+                    borderColor: [
+                        'rgba(0, 123, 255, 1)',
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(40, 167, 69, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                return `${label}: ${value} user${value !== 1 ? 's' : ''}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,28 @@
+/* styles.css */
+
+/* Add some spacing below headings */
+h1, h2, h3 {
+    margin-bottom: 20px;
+}
+
+/* Style the navbar brand */
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+/* Table styling overrides */
+.table thead th {
+    background-color: #343a40;
+    color: #ffffff;
+}
+
+/* Buttons with more spacing */
+.btn {
+    margin-right: 5px;
+}
+
+/* Make alerts stand out */
+.alert {
+    font-size: 1.1rem;
+}

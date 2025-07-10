@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    /* Keep your CSS here unchanged. For brevity, not repeating it unless you need. */
+</style>
+
+<!-- Tasks Due Today -->
+<div class="section-container" style="--section-index: 1">
+    <h3>Tasks Due Today</h3>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks_due_today %}
+                <tr class="table-row" style="--row-index: {{ loop.index }}">
+                    <td>{{ task.name }}</td>
+                    <td>{{ task.category }}</td>
+                    <td>{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else '' }}</td>
+                    <td>{{ task.status }}</td>
+                    <td>
+                        <a href="{{ url_for('update_task', task_id=task.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                        <form action="{{ url_for('delete_task', task_id=task.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this task?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center">No tasks due today</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Tasks Completed in Last 7 Days (Chart) -->
+<div class="section-container" style="--section-index: 2">
+    <h3>Tasks Completed in Last 7 Days</h3>
+    <div class="chart-container">
+        <canvas id="completedTasksChart"></canvas>
+    </div>
+</div>
+
+<!-- Upcoming Tasks -->
+<div class="section-container" style="--section-index: 3">
+    <h3>Upcoming Tasks</h3>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in upcoming_tasks %}
+                <tr class="table-row" style="--row-index: {{ loop.index }}">
+                    <td>{{ task.name }}</td>
+                    <td>{{ task.category }}</td>
+                    <td>{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else '' }}</td>
+                    <td>{{ task.status }}</td>
+                    <td>
+                        <a href="{{ url_for('update_task', task_id=task.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                        <form action="{{ url_for('delete_task', task_id=task.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this task?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center">No upcoming tasks</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- All Tasks -->
+<div class="section-container" style="--section-index: 4">
+    <h2>Your Tasks</h2>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr class="table-row" style="--row-index: {{ loop.index }}">
+                    <td>{{ task.name }}</td>
+                    <td>{{ task.category }}</td>
+                    <td>{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else '' }}</td>
+                    <td>{{ task.status }}</td>
+                    <td>
+                        <a href="{{ url_for('update_task', task_id=task.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                        <form action="{{ url_for('delete_task', task_id=task.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this task?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center">No tasks available</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <a href="{{ url_for('create_task') }}" class="btn btn-primary btn-create mt-3">Create New Task</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% set json_data = completed_tasks_data | tojson | default('{"labels":[],"counts":[]}', true) %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const rows = document.querySelectorAll('.table-row');
+    const button = document.querySelector('.btn-create');
+    const sections = document.querySelectorAll('.section-container');
+
+    rows.forEach(row => row.style.animationPlayState = 'running');
+    if (button) button.style.animationPlayState = 'running';
+    sections.forEach(section => section.style.animationPlayState = 'running');
+
+    const ctx = document.getElementById('completedTasksChart').getContext('2d');
+    const completedTasksData = JSON.parse(`{{ json_data | safe }}`);
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: completedTasksData.labels,
+            datasets: [{
+                label: 'Tasks Completed',
+                data: completedTasksData.counts,
+                backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                borderColor: 'rgba(0, 123, 255, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+});
+</script>
+{% endblock %}

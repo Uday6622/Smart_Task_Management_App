@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<style>
+    /* Form container styling */
+    .register-container {
+        max-width: 400px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    /* Form field animations */
+    .mb-3 {
+        opacity: 0;
+        transform: translateX(-20px);
+        animation: slideIn 0.5s ease-out forwards;
+        animation-delay: calc(0.1s * var(--field-index));
+    }
+
+    /* Button animation */
+    .btn-register {
+        opacity: 0;
+        transform: translateY(10px);
+        animation: fadeInUp 0.6s ease-out 0.4s forwards;
+        transition: all 0.3s ease;
+        width: 100%;
+        padding: 0.75rem;
+    }
+
+    .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Link styling */
+    .login-link {
+        display: block;
+        text-align: center;
+        margin-top: 1rem;
+        opacity: 0;
+        animation: fadeInUp 0.6s ease-out 0.5s forwards;
+    }
+
+    .login-link a {
+        color: #007bff;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .login-link a:hover {
+        color: #0056b3;
+        text-decoration: underline;
+    }
+
+    /* Keyframes for animations */
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideIn {
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Typography and form styling */
+    h2 {
+        font-weight: 600;
+        color: #343a40;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-control {
+        border-radius: 6px;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 8px rgba(40, 167, 69, 0.3);
+    }
+
+    label {
+        font-weight: 500;
+        color: #495057;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 576px) {
+        .register-container {
+            margin: 1rem;
+            padding: 1.5rem;
+        }
+        h2 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<div class="register-container">
+    <h2>Register</h2>
+    <form method="post" action="/register">
+        <div class="mb-3" style="--field-index: 1">
+            <label for="username">Username</label>
+            <input type="text" name="username" id="username" class="form-control" required />
+        </div>
+        <div class="mb-3" style="--field-index: 2">
+            <label for="email">Email</label>
+            <input type="email" name="email" id="email" class="form-control" required />
+        </div>
+        <div class="mb-3" style="--field-index: 3">
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" class="form-control" required />
+        </div>
+        <button type="submit" class="btn btn-success btn-register">Register</button>
+    </form>
+    <div class="login-link">
+        <p>Already have an account? <a href="/login">Login here</a></p>
+    </div>
+</div>
+
+<script>
+    // Ensure animations trigger on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        const container = document.querySelector('.register-container');
+        const fields = document.querySelectorAll('.mb-3');
+        const button = document.querySelector('.btn-register');
+        const link = document.querySelector('.login-link');
+        container.style.animationPlayState = 'running';
+        fields.forEach(field => {
+            field.style.animationPlayState = 'running';
+        });
+        button.style.animationPlayState = 'running';
+        link.style.animationPlayState = 'running';
+    });
+</script>
+{% endblock %}

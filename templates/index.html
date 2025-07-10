@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<style>
+    /* Hero section styling */
+    .hero-section {
+        position: relative;
+        min-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        z-index: 1;
+    }
+
+    /* Parallax background effect */
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: -10%;
+        left: -10%;
+        width: 120%;
+        height: 120%;
+        background: url('https://images.unsplash.com/photo-1516321310764-8a2388150e72?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+        opacity: 0.4;
+        z-index: -1;
+        transform: translateZ(0);
+        transition: transform 0.1s ease-out;
+    }
+
+    /* Hero content styling */
+    .hero-content {
+        text-align: center;
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.8s ease-out forwards;
+    }
+
+    .hero-content h1 {
+        font-weight: 700;
+        color: #1a237e;
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .hero-content p {
+        font-size: 1.3rem;
+        color: #283593;
+        margin-bottom: 2.5rem;
+        max-width: 600px;
+    }
+
+    /* Button styling with gesture animations */
+    .btn-login, .btn-register {
+        opacity: 0;
+        transform: translateY(15px);
+        animation: fadeInUp 0.8s ease-out forwards;
+        animation-delay: calc(0.2s * var(--button-index));
+        margin: 0 0.75rem;
+        padding: 0.8rem 2rem;
+        font-size: 1.2rem;
+        font-weight: 500;
+        border-radius: 8px;
+        transition: all 0.3s ease, transform 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-login::after, .btn-register::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.4s ease, height 0.4s ease;
+    }
+
+    .btn-login:hover::after, .btn-register:hover::after {
+        width: 200%;
+        height: 200%;
+    }
+
+    .btn-login:hover, .btn-register:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Keyframes for animations */
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .hero-section {
+            min-height: 60vh;
+        }
+        .hero-content h1 {
+            font-size: 2rem;
+        }
+        .hero-content p {
+            font-size: 1.1rem;
+            padding: 0 1rem;
+        }
+        .btn-login, .btn-register {
+            padding: 0.6rem 1.5rem;
+            font-size: 1rem;
+            margin: 0.5rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .hero-content h1 {
+            font-size: 1.8rem;
+        }
+        .btn-login, .btn-register {
+            display: block;
+            width: 80%;
+            margin: 0.5rem auto;
+        }
+    }
+</style>
+
+<div class="hero-section">
+    <div class="hero-content">
+        <h1>Welcome to Smart Task Management</h1>
+        <p>Streamline your productivity with our intuitive task management platform. Organize, track, and succeed.</p>
+        <div class="button-group">
+            <a href="/login" class="btn btn-primary btn-login" style="--button-index: 1">Login</a>
+            <a href="/register" class="btn btn-secondary btn-register" style="--button-index: 2">Register</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Ensure animations trigger on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        const content = document.querySelector('.hero-content');
+        const buttons = document.querySelectorAll('.btn-login, .btn-register');
+        content.style.animationPlayState = 'running';
+        buttons.forEach(button => {
+            button.style.animationPlayState = 'running';
+        });
+    });
+
+    // Parallax effect on mouse move
+    document.querySelector('.hero-section').addEventListener('mousemove', (e) => {
+        const x = (e.clientX / window.innerWidth - 0.5) * 20;
+        const y = (e.clientY / window.innerHeight - 0.5) * 20;
+        document.querySelector('.hero-section::before').style.transform = `translate(${x}px, ${y}px) scale(1.1)`;
+    });
+
+    // Reset parallax on mouse leave
+    document.querySelector('.hero-section').addEventListener('mouseleave', () => {
+        document.querySelector('.hero-section::before').style.transform = 'translate(0, 0) scale(1.1)';
+    });
+</script>
+{% endblock %}

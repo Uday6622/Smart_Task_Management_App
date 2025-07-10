@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Create Task{% endblock %}
+
+{% block content %}
+<style>
+    /* (Your existing styles here - unchanged) */
+    .create-task-container {
+        max-width: 500px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    .alert {
+        opacity: 0;
+        transform: translateY(10px);
+        animation: fadeInUp 0.6s ease-out 0.2s forwards;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .mb-3 {
+        opacity: 0;
+        transform: translateX(-20px);
+        animation: slideIn 0.5s ease-out forwards;
+        animation-delay: calc(0.1s * var(--field-index));
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        opacity: 0;
+        transform: translateY(10px);
+        animation: fadeInUp 0.6s ease-out 0.4s forwards;
+    }
+
+    .btn-create, .btn-cancel {
+        transition: all 0.3s ease;
+        padding: 0.75rem;
+        width: 100%;
+    }
+
+    .btn-create:hover, .btn-cancel:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideIn {
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    h2 {
+        font-weight: 600;
+        color: #343a40;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-control, .form-control:focus {
+        border-radius: 6px;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+    }
+
+    label {
+        font-weight: 500;
+        color: #495057;
+    }
+
+    textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    @media (max-width: 576px) {
+        .create-task-container {
+            margin: 1rem;
+            padding: 1.5rem;
+        }
+        h2 {
+            font-size: 1.5rem;
+        }
+        .button-group {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+    }
+</style>
+
+<div class="create-task-container">
+    <h2>Create Task</h2>
+    {% if message %}
+    <div class="alert alert-warning">{{ message }}</div>
+    {% endif %}
+    <form method="post">
+        <div class="mb-3" style="--field-index: 1">
+            <label for="name">Name</label>
+            <input type="text" name="name" id="name" class="form-control" required>
+        </div>
+        <div class="mb-3" style="--field-index: 2">
+            <label for="category">Category</label>
+            <input type="text" name="category" id="category" class="form-control">
+        </div>
+        <div class="mb-3" style="--field-index: 3">
+            <label for="due_date">Due Date</label>
+            <input type="date" name="due_date" id="due_date" class="form-control">
+        </div>
+        <div class="mb-3" style="--field-index: 4">
+            <label for="status">Status</label>
+            <select name="status" id="status" class="form-control">
+                <option value="Pending" selected>Pending</option>
+                <option value="Completed">Completed</option>
+            </select>
+        </div>
+        <div class="mb-3" style="--field-index: 5">
+            <label for="description">Description</label>
+            <textarea name="description" id="description" class="form-control"></textarea>
+        </div>
+        <div class="button-group">
+            <button type="submit" class="btn btn-primary btn-create">Create</button>
+            <a href="/dashboard" class="btn btn-secondary btn-cancel">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const container = document.querySelector('.create-task-container');
+        const fields = document.querySelectorAll('.mb-3');
+        const alert = document.querySelector('.alert');
+        const buttonGroup = document.querySelector('.button-group');
+        container.style.animationPlayState = 'running';
+        fields.forEach(field => {
+            field.style.animationPlayState = 'running';
+        });
+        if (alert) alert.style.animationPlayState = 'running';
+        buttonGroup.style.animationPlayState = 'running';
+    });
+</script>
+{% endblock %}
