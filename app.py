@@ -359,4 +359,4 @@ if __name__ == "__main__":
             db.session.commit()
             print("✅ Default admin created: admin@example.com / admin123")
 
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
