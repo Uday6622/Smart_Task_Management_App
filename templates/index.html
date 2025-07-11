@@ -4,71 +4,127 @@
 
 {% block content %}
 <style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #111827;
+    }
+
+    /* Navbar styling */
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(90deg, #7c3aed, #db2777);
+        padding: 1rem 2rem;
+        color: white;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .navbar .logo {
+        font-size: 1.8rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+
+    .navbar a {
+        color: white;
+        text-decoration: none;
+        margin-left: 1.5rem;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+    .navbar a:hover {
+        color: #fef3c7;
+    }
+
     /* Hero section styling */
     .hero-section {
         position: relative;
-        min-height: 80vh;
+        min-height: 85vh;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         overflow: hidden;
-        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-        z-index: 1;
+        background: linear-gradient(135deg, #fef3c7 0%, #e0e7ff 100%);
     }
 
-    /* Parallax background effect */
-    .hero-section::before {
-        content: '';
+    .hero-bg {
         position: absolute;
-        top: -10%;
-        left: -10%;
-        width: 120%;
-        height: 120%;
+        top: -15%;
+        left: -15%;
+        width: 130%;
+        height: 130%;
         background: url('https://images.unsplash.com/photo-1516321310764-8a2388150e72?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
-        opacity: 0.4;
+        opacity: 0.2;
+        filter: blur(4px);
         z-index: -1;
-        transform: translateZ(0);
-        transition: transform 0.1s ease-out;
+        transform: translate(0, 0) scale(1.1);
+        transition: transform 0.15s ease-out;
     }
 
-    /* Hero content styling */
     .hero-content {
         text-align: center;
         opacity: 0;
-        transform: translateY(30px);
-        animation: fadeInUp 0.8s ease-out forwards;
+        transform: translateY(40px);
+        animation: fadeInUp 1s ease-out forwards;
+        padding: 3rem;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 24px;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+        max-width: 900px;
+        backdrop-filter: blur(10px);
     }
 
     .hero-content h1 {
-        font-weight: 700;
-        color: #1a237e;
-        font-size: 3rem;
+        font-weight: 900;
+        font-size: 3.8rem;
+        letter-spacing: -0.02em;
         margin-bottom: 1.5rem;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        background: linear-gradient(to right, #7c3aed, #db2777);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 
     .hero-content p {
-        font-size: 1.3rem;
-        color: #283593;
-        margin-bottom: 2.5rem;
-        max-width: 600px;
+        font-size: 1.5rem;
+        color: #4b5563;
+        margin-bottom: 3rem;
+        line-height: 1.8;
+        font-weight: 500;
     }
 
-    /* Button styling with gesture animations */
     .btn-login, .btn-register {
         opacity: 0;
-        transform: translateY(15px);
-        animation: fadeInUp 0.8s ease-out forwards;
-        animation-delay: calc(0.2s * var(--button-index));
-        margin: 0 0.75rem;
-        padding: 0.8rem 2rem;
-        font-size: 1.2rem;
-        font-weight: 500;
-        border-radius: 8px;
-        transition: all 0.3s ease, transform 0.2s ease;
+        transform: translateY(20px);
+        animation: fadeInUp 1s ease-out forwards;
+        animation-delay: calc(0.4s * var(--button-index));
+        margin: 0 1rem;
+        padding: 1rem 3.5rem;
+        font-size: 1.3rem;
+        font-weight: 600;
+        border-radius: 50px;
+        transition: all 0.3s ease;
         position: relative;
         overflow: hidden;
+        border: none;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .btn-login {
+        background: linear-gradient(90deg, #7c3aed, #db2777);
+        color: white;
+    }
+
+    .btn-register {
+        background: transparent;
+        color: #7c3aed;
+        border: 2px solid #7c3aed;
     }
 
     .btn-login::after, .btn-register::after {
@@ -78,23 +134,83 @@
         left: 50%;
         width: 0;
         height: 0;
-        background: rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.4);
         border-radius: 50%;
         transform: translate(-50%, -50%);
-        transition: width 0.4s ease, height 0.4s ease;
+        transition: width 0.6s ease, height 0.6s ease;
     }
 
     .btn-login:hover::after, .btn-register:hover::after {
-        width: 200%;
-        height: 200%;
+        width: 300%;
+        height: 300%;
     }
 
-    .btn-login:hover, .btn-register:hover {
-        transform: translateY(-3px) scale(1.05);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    .btn-login:hover {
+        background: linear-gradient(90deg, #6d28d9, #be185d);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(124, 58, 237, 0.3);
     }
 
-    /* Keyframes for animations */
+    .btn-register:hover {
+        background: #7c3aed;
+        color: white;
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(124, 58, 237, 0.3);
+    }
+
+    /* Footer styling */
+    .footer {
+        background: linear-gradient(90deg, #7c3aed, #db2777);
+        color: white;
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+
+    .footer h3 {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 2rem;
+    }
+
+    .footer .services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 2.5rem;
+        max-width: 1200px;
+        margin: 0 auto 3rem;
+    }
+
+    .footer .service-item {
+        padding: 1.8rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .footer .service-item:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .footer .service-item h4 {
+        font-size: 1.4rem;
+        margin-bottom: 0.8rem;
+        font-weight: 700;
+    }
+
+    .footer .service-item p {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    .footer .footer-bottom {
+        border-top: 1px solid rgba(255, 255, 255, 0.3);
+        padding-top: 2rem;
+        font-size: 1rem;
+    }
+
+    /* Keyframes */
     @keyframes fadeInUp {
         to {
             opacity: 1;
@@ -102,29 +218,20 @@
         }
     }
 
-    /* Responsive adjustments */
     @media (max-width: 768px) {
-        .hero-section {
-            min-height: 60vh;
-        }
-        .hero-content h1 {
-            font-size: 2rem;
-        }
-        .hero-content p {
-            font-size: 1.1rem;
-            padding: 0 1rem;
-        }
+        .hero-content h1 { font-size: 2.5rem; }
+        .hero-content p { font-size: 1.2rem; padding: 0 1rem; }
         .btn-login, .btn-register {
-            padding: 0.6rem 1.5rem;
-            font-size: 1rem;
+            padding: 0.8rem 2.5rem;
+            font-size: 1.1rem;
             margin: 0.5rem;
         }
+        .footer h3 { font-size: 1.7rem; }
     }
 
     @media (max-width: 576px) {
-        .hero-content h1 {
-            font-size: 1.8rem;
-        }
+        .hero-content h1 { font-size: 2rem; }
+        .hero-content p { font-size: 1rem; }
         .btn-login, .btn-register {
             display: block;
             width: 80%;
@@ -133,19 +240,38 @@
     }
 </style>
 
+
 <div class="hero-section">
+    <div class="hero-bg"></div>
     <div class="hero-content">
         <h1>Welcome to Smart Task Management</h1>
         <p>Streamline your productivity with our intuitive task management platform. Organize, track, and succeed.</p>
         <div class="button-group">
-            <a href="/login" class="btn btn-primary btn-login" style="--button-index: 1">Login</a>
-            <a href="/register" class="btn btn-secondary btn-register" style="--button-index: 2">Register</a>
+            <a href="/login" class="btn-login" style="--button-index: 1">Login</a>
+            <a href="/register" class="btn-register" style="--button-index: 2">Register</a>
         </div>
     </div>
 </div>
 
+<footer class="footer">
+    <h3>Our Services</h3>
+    <div class="services-grid">
+        <div class="service-item">
+            <h4>Task Organization</h4>
+            <p>Effortlessly organize and prioritize tasks with our sleek, user-friendly interface.</p>
+        </div>
+        <div class="service-item">
+            <h4>Progress Tracking</h4>
+            <p>Monitor your projects with real-time insights and stay ahead of deadlines.</p>
+        </div>
+        <div class="service-item">
+            <h4>Team Collaboration</h4>
+            <p>Collaborate seamlessly with your team to achieve shared goals efficiently.</p>
+        </div>
+    </div>
+</footer>
+
 <script>
-    // Ensure animations trigger on page load
     document.addEventListener('DOMContentLoaded', () => {
         const content = document.querySelector('.hero-content');
         const buttons = document.querySelectorAll('.btn-login, .btn-register');
@@ -155,16 +281,14 @@
         });
     });
 
-    // Parallax effect on mouse move
+    // Parallax effect
     document.querySelector('.hero-section').addEventListener('mousemove', (e) => {
         const x = (e.clientX / window.innerWidth - 0.5) * 20;
         const y = (e.clientY / window.innerHeight - 0.5) * 20;
-        document.querySelector('.hero-section::before').style.transform = `translate(${x}px, ${y}px) scale(1.1)`;
+        document.querySelector('.hero-bg').style.transform = `translate(${x}px, ${y}px) scale(1.1)`;
     });
-
-    // Reset parallax on mouse leave
     document.querySelector('.hero-section').addEventListener('mouseleave', () => {
-        document.querySelector('.hero-section::before').style.transform = 'translate(0, 0) scale(1.1)';
+        document.querySelector('.hero-bg').style.transform = 'translate(0, 0) scale(1.1)';
     });
 </script>
 {% endblock %}
