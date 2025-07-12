@@ -256,6 +256,7 @@ def create_app():
             user_task_status_data=user_task_status_data
         )
 
+
     @app.route("/admin/create-task/<int:user_id>", methods=["GET", "POST"])
     def admin_create_task(user_id):
         if not session.get("is_admin"):
@@ -305,6 +306,48 @@ def create_app():
 
         return render_template("admin_create_task.html", user=user, upcoming_tasks=upcoming_tasks, now=datetime.utcnow())
 
+
+    @app.route("/admin/update-task/<int:task_id>", methods=["GET", "POST"])
+    def admin_update_task(task_id):
+        if not session.get("is_admin"):
+            return redirect(url_for("dashboard"))
+
+        task = Task.query.get_or_404(task_id)
+
+        if request.method == "POST":
+            task.name = request.form.get("name")
+            task.description = request.form.get("description")
+            task.category = request.form.get("category")
+            status = request.form.get("status")
+
+            due_date_str = request.form.get("due_date")
+            if due_date_str:
+                try:
+                    task.due_date = datetime.strptime(due_date_str, "%Y-%m-%d")
+                except ValueError:
+                    return render_template("edit_task.html", task=task, message="Invalid date format.")
+            else:
+                task.due_date = None
+
+            task.status = status or "Pending"
+
+            db.session.commit()
+            return redirect(url_for("admin_dashboard"))
+
+        return render_template("edit_task.html", task=task)
+
+
+    @app.route("/admin/delete-task/<int:task_id>", methods=["POST"])
+    def admin_delete_task(task_id):
+        if not session.get("is_admin"):
+            return redirect(url_for("dashboard"))
+
+        task = Task.query.get_or_404(task_id)
+        db.session.delete(task)
+        db.session.commit()
+        return redirect(url_for("admin_dashboard"))
+
+
     @app.route("/toggle-user-status/<int:user_id>", methods=["POST"])
     def toggle_user_status(user_id):
         if not session.get("is_admin"):
@@ -317,6 +360,7 @@ def create_app():
         user.is_active = not user.is_active
         db.session.commit()
         return redirect(url_for("admin_dashboard"))
+
 
     @app.route("/delete-user/<int:user_id>", methods=["POST"])
     def delete_user(user_id):
@@ -331,15 +375,61 @@ def create_app():
         db.session.commit()
         return redirect(url_for("admin_dashboard"))
 
+
     @app.route("/logout")
     def logout():
         session.clear()
         return redirect(url_for("index"))
+    import io
+    from flask import send_file
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+    from reportlab.lib import colors
+
+    @app.route("/admin/export/users/pdf")
+    def export_users_pdf():
+        if not session.get("is_admin"):
+            return redirect(url_for("dashboard"))
+
+        users = User.query.all()
+
+        output = io.BytesIO()
+        doc = SimpleDocTemplate(output)
+        data = [["ID", "Username", "Email", "Is Admin", "Is Active", "Created At"]]
+        for u in users:
+            data.append([
+                str(u.id),
+                u.username,
+                u.email,
+                str(u.is_admin),
+                str(u.is_active),
+                u.created_at.strftime("%Y-%m-%d %H:%M:%S")
+            ])
+
+        table = Table(data)
+        style = TableStyle([
+            ("BACKGROUND", (0,0), (-1,0), colors.grey),
+            ("TEXTCOLOR", (0,0), (-1,0), colors.whitesmoke),
+            ("ALIGN", (0,0), (-1,-1), "CENTER"),
+            ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
+            ("BOTTOMPADDING", (0,0), (-1,0), 12),
+            ("BACKGROUND", (0,1), (-1,-1), colors.beige),
+        ])
+        table.setStyle(style)
+        elements = [table]
+        doc.build(elements)
+        output.seek(0)
+
+        return send_file(
+            output,
+            download_name="users.pdf",
+            as_attachment=True,
+            mimetype="application/pdf"
+        )
+
 
     @app.route("/error")
     def error():
         return render_template("error.html", message="Something went wrong.")
-
     return app
 
 if __name__ == "__main__":
