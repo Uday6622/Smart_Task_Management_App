@@ -1,9 +1,9 @@
-# routes/admin_routes.py
-
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
 from models.user import User
+from models.task import Task
+from datetime import datetime
 
 admin_bp = Blueprint("admin", __name__)
 
@@ -17,30 +17,55 @@ def admin_required(fn):
     wrapper.__name__ = fn.__name__
     return wrapper
 
-@admin_bp.route("/users", methods=["GET"])
+# Existing routes...
+
+@admin_bp.route("/tasks", methods=["GET"])
 @admin_required
-def list_users():
-    users = User.query.all()
+def list_all_tasks():
+    tasks = Task.query.all()
     result = []
-    for u in users:
+    for t in tasks:
         result.append({
-            "id": u.id,
-            "username": u.username,
-            "email": u.email,
-            "is_admin": u.is_admin,
-            "is_active": u.is_active,
-            "created_at": u.created_at
+            "id": t.id,
+            "name": t.name,
+            "description": t.description,
+            "category": t.category,
+            "status": t.status,
+            "due_date": t.due_date.isoformat() if t.due_date else None,
+            "user_id": t.user_id
         })
     return jsonify(result), 200
 
-@admin_bp.route("/users/<int:user_id>/deactivate", methods=["PUT"])
+@admin_bp.route("/tasks/<int:task_id>", methods=["PUT"])
 @admin_required
-def deactivate_user(user_id):
-    user = User.query.get(user_id)
-    if not user:
-        return jsonify({"error": "User not found"}), 404
+def update_task(task_id):
+    task = Task.query.get(task_id)
+    if not task:
+        return jsonify({"error": "Task not found"}), 404
 
-    user.is_active = False
+    data = request.json
+    task.name = data.get("name", task.name)
+    task.description = data.get("description", task.description)
+    task.category = data.get("category", task.category)
+    task.status = data.get("status", task.status)
+
+    due_date_str = data.get("due_date")
+    if due_date_str:
+        try:
+            task.due_date = datetime.strptime(due_date_str, "%Y-%m-%d")
+        except ValueError:
+            return jsonify({"error": "Invalid date format"}), 400
+
     db.session.commit()
+    return jsonify({"message": "Task updated"}), 200
 
-    return jsonify({"message": "User deactivated"}), 200
+@admin_bp.route("/tasks/<int:task_id>", methods=["DELETE"])
+@admin_required
+def delete_task(task_id):
+    task = Task.query.get(task_id)
+    if not task:
+        return jsonify({"error": "Task not found"}), 404
+
+    db.session.delete(task)
+    db.session.commit()
+    return jsonify({"message": "Task deleted"}), 200
