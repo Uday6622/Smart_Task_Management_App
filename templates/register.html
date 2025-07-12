@@ -112,6 +112,11 @@
 
 <div class="register-container">
     <h2>Register</h2>
+    {% if message %}
+      <div class="alert alert-danger" style="margin-bottom:1rem; text-align:center;">
+        {{ message }}
+      </div>
+    {% endif %}
     <form method="post" action="/register">
         <div class="mb-3" style="--field-index: 1">
             <label for="username">Username</label>
@@ -131,6 +136,7 @@
         <p>Already have an account? <a href="/login">Login here</a></p>
     </div>
 </div>
+
 
 <script>
     // Ensure animations trigger on page load
