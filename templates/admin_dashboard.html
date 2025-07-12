@@ -168,7 +168,11 @@
             <canvas id="userTaskStatusChart"></canvas>
         </div>
     </div>
-
+    <div class="section-container mb-3" style="--section-index: 1.5">
+        <a href="{{ url_for('export_users_pdf') }}" class="btn btn-outline-primary">
+            📄 Download Users as PDF
+        </a>
+    </div>    
     <!-- All Users Table -->
     <div class="section-container" style="--section-index: 2">
         <h2>All Users</h2>
@@ -216,14 +220,22 @@
                                             <th>Name</th>
                                             <th>Due Date</th>
                                             <th>Status</th>
+                                            <th>Actions</th>
                                         </tr>
                                     </thead>
+                                    
                                     <tbody>
                                         {% for task in tasks_by_user[user.id] %}
                                         <tr>
                                             <td>{{ task.name }}</td>
                                             <td>{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else 'N/A' }}</td>
                                             <td>{{ task.status }}</td>
+                                            <td>
+                                                <a href="{{ url_for('admin_update_task', task_id=task.id) }}" class="btn btn-sm btn-outline-primary btn-action" style="--button-index: 4">Edit</a>
+                                                <form action="{{ url_for('admin_delete_task', task_id=task.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this task?');">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger btn-action" style="--button-index: 5">Delete</button>
+                                                </form>
+                                            </td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
