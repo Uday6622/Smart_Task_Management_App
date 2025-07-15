@@ -48,7 +48,7 @@ def create_task():
 @jwt_required()
 def list_tasks():
     current_user = get_jwt_identity()
-    tasks = Task.query.filter_by(user_id=current_user["id"]).all()
+    tasks = Task.query.filter_by(user_id=current_user["id"]).order_by(Task.id.desc()).all()
     result = []
     for t in tasks:
         result.append({

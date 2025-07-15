@@ -92,7 +92,7 @@ def create_app():
         if "user_id" not in session:
             return redirect(url_for("login"))
 
-        tasks = Task.query.filter_by(user_id=session["user_id"]).order_by(Task.due_date).all()
+        tasks = Task.query.filter_by(user_id=session["user_id"]).order_by(Task.id.desc()).all()
 
         today = datetime.utcnow().date()
 
@@ -111,7 +111,10 @@ def create_app():
             if t.category:
                 category_counts[t.category] = category_counts.get(t.category, 0) + 1
         popular_categories = sorted(category_counts.items(), key=lambda x: x[1], reverse=True)
-
+        popular_categories_data = {
+        "labels": [c[0] for c in popular_categories],
+        "counts": [c[1] for c in popular_categories]
+        }
         last_7_days = [today - timedelta(days=i) for i in range(6, -1, -1)]
         labels = [d.strftime("%Y-%m-%d") for d in last_7_days]
         counts = []
@@ -133,6 +136,7 @@ def create_app():
             tasks_due_today=tasks_due_today,
             upcoming_tasks=upcoming_tasks,
             popular_categories=popular_categories,
+            popular_categories_data=popular_categories_data, 
             completed_tasks_data=completed_tasks_data,
             username=session.get("username")
         )

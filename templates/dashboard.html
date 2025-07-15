@@ -4,8 +4,137 @@
 
 {% block content %}
 <style>
-    /* Keep your CSS here unchanged. For brevity, not repeating it unless you need. */
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f1f5f9;
+        color: #1e293b;
+        margin: 0;
+    }
+
+    .section-container {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        animation: fadeInUp 0.6s ease forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    .section-container:last-child {
+        margin-bottom: 3rem;
+    }
+
+    h2, h3 {
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(90deg, #4f46e5, #ec4899);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    .table thead th {
+        background: #4f46e5;
+        color: white;
+        font-weight: 600;
+        text-align: center;
+        padding: 0.75rem;
+    }
+
+    .table tbody td {
+        background: white;
+        padding: 0.75rem;
+        text-align: center;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .table tbody tr:hover {
+        background: #f9fafb;
+    }
+
+    .btn {
+        padding: 0.4rem 0.9rem;
+        font-size: 0.85rem;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .btn-warning {
+        background: #facc15;
+        color: #1e293b;
+        border: none;
+    }
+
+    .btn-warning:hover {
+        background: #eab308;
+    }
+
+    .btn-danger {
+        background: #ef4444;
+        color: white;
+        border: none;
+    }
+
+    .btn-danger:hover {
+        background: #dc2626;
+    }
+
+    .btn-primary {
+        background: #4f46e5;
+        color: white;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background: #4338ca;
+    }
+
+    .btn-create {
+        display: inline-block;
+        padding: 0.4rem 0.9rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border-radius: 6px;
+    }
+
+    .chart-container {
+        background: #f9fafb;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: inset 0 0 0 1px #e2e8f0;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .section-container {
+            padding: 1rem;
+        }
+        .btn-create {
+            width: 100%;
+        }
+    }
 </style>
+
 
 <!-- Tasks Due Today -->
 <div class="section-container" style="--section-index: 1">
@@ -52,6 +181,14 @@
         <canvas id="completedTasksChart"></canvas>
     </div>
 </div>
+<!-- Most Popular Categories -->
+<div class="section-container" style="--section-index: 3">
+    <h3>Most Popular Categories</h3>
+    <div class="chart-container">
+        <canvas id="popularCategoriesChart"></canvas>
+    </div>
+</div>
+
 
 <!-- Upcoming Tasks -->
 <div class="section-container" style="--section-index: 3">
@@ -92,7 +229,7 @@
 </div>
 
 <!-- All Tasks -->
-<div class="section-container" style="--section-index: 4">
+<div class="section-container mb-5" style="--section-index: 4">
     <h2>Your Tasks</h2>
     <div class="table-responsive">
         <table class="table table-striped">
@@ -131,7 +268,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-{% set json_data = completed_tasks_data | tojson | default('{"labels":[],"counts":[]}', true) %}
+{% set json_data = (completed_tasks_data or {"labels":[],"counts":[]}) | tojson %}
+{% set json_categories = (popular_categories_data or {"labels":[],"counts":[]}) | tojson %}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const rows = document.querySelectorAll('.table-row');
@@ -168,5 +306,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+const ctxCategories = document.getElementById('popularCategoriesChart').getContext('2d');
+const popularCategoriesData = JSON.parse(`{{ json_categories | safe }}`);
+
+new Chart(ctxCategories, {
+    type: 'bar',
+    data: {
+        labels: popularCategoriesData.labels,
+        datasets: [{
+            label: 'Number of Tasks',
+            data: popularCategoriesData.counts,
+            backgroundColor: 'rgba(40, 167, 69, 0.5)',
+            borderColor: 'rgba(40, 167, 69, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { stepSize: 1 }
+            }
+        },
+        plugins: {
+            legend: { display: false }
+        }
+    }
+});
+
 </script>
 {% endblock %}
