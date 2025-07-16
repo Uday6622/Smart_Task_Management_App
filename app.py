@@ -230,7 +230,22 @@ def create_app():
             return redirect(url_for("dashboard"))
 
         users = User.query.all()
-        tasks_by_user = {u.id: Task.query.filter_by(user_id=u.id).order_by(Task.due_date).all() for u in users}
+
+        # Convert created_at timestamps to Asia/Kolkata timezone
+        import pytz
+        IST = pytz.timezone("Asia/Kolkata")
+        for u in users:
+            if u.created_at:
+                # Convert from UTC to IST
+                if u.created_at.tzinfo is None:
+                    u.created_at = pytz.utc.localize(u.created_at).astimezone(IST)
+                else:
+                    u.created_at = u.created_at.astimezone(IST)
+
+        tasks_by_user = {
+            u.id: Task.query.filter_by(user_id=u.id).order_by(Task.due_date).all()
+            for u in users
+        }
 
         # Compute number of users with at least one task in each status
         status_user_counts = {
@@ -259,7 +274,6 @@ def create_app():
             tasks_by_user=tasks_by_user,
             user_task_status_data=user_task_status_data
         )
-
 
     @app.route("/admin/create-task/<int:user_id>", methods=["GET", "POST"])
     def admin_create_task(user_id):
