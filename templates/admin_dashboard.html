@@ -60,6 +60,12 @@
         animation-delay: calc(0.2s * var(--section-index));
     }
     
+    .table tbody td:nth-child(3) {
+    color: #374151;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    }
+
     /* Table styling */
     .table-responsive {
         overflow-x: auto;
@@ -177,6 +183,7 @@
                     <tr>
                         <th>Username</th>
                         <th>Email</th>
+                        <th>Created At</th>
                         <th>Active</th>
                         <th>Admin</th>
                         <th>Actions</th>
@@ -188,6 +195,13 @@
                     <tr class="table-row" style="--row-index: {{ loop.index }}">
                         <td>{{ user.username }}</td>
                         <td>{{ user.email }}</td>
+                        <td>
+                            {% if user.created_at %}
+                                {{ user.created_at.strftime('%Y-%m-%d %H:%M') }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
                         <td>{{ "Yes" if user.is_active else "No" }}</td>
                         <td>{{ "Yes" if user.is_admin else "No" }}</td>
                         <td>
